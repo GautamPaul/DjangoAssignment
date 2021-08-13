@@ -1,11 +1,15 @@
+from functools import partial
 import re
 from django.shortcuts import render
-from projects.models import Projects
-from projects.serializers import ProjectsSerializer
+from projects.models import Projects, Resource
+from projects.serializers import ProjectsSerializer, ResourceSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http.response import Http404
 from rest_framework import status
+import json
+import io
+from rest_framework.parsers import JSONParser
 
 
 # Create your views here.
@@ -57,3 +61,45 @@ class SpecificProject(APIView):
         project = self.get_project(pk)
         project.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AllocateResource(APIView):
+    def put(self, request, pk):
+        print(pk)
+        resources = json.loads(request.body)["id"]
+        print(resources)
+        if Projects.objects.filter(id=pk).exists():
+            print("Project exist")
+            for resource in resources:
+                if Resource.objects.filter(id=resource).exists():
+                    print("resource {} exists".format(resource))
+                    resourceData = Resource.objects.get(id=resource)
+                    serializer = ResourceSerializer(
+                        resourceData, data={"project": pk}, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        print("resource {} allocated to project {}".format(
+                            resource, pk))
+                else:
+                    return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_200_OK)
+
+
+class DeallocateResource(APIView):
+    def put(self, request):
+        resources = json.loads(request.body)["id"]
+        print(resources)
+        for resource in resources:
+            if Resource.objects.filter(id=resource).exists():
+                print("resource {} exists".format(resource))
+                resourceData = Resource.objects.get(id=resource)
+                serializer = ResourceSerializer(
+                    resourceData, data={"project": 1}, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    print("resource {} deallocated".format(resource,))
+            else:
+                return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_200_OK)
