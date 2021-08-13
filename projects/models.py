@@ -73,3 +73,9 @@ class Resource(AbstractBaseUser):  # Custom user model for resources
         return True
 
     objects = ResourceManager()
+
+
+class Release(models.Model):    # Release Model
+    project = models.ForeignKey(Projects, on_delete=models.CASCADE)
+    release_date = models.DateField()
+    deliverables = models.TextField()
