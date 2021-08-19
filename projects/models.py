@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 class Projects(models.Model):  # Projects Model
     name = models.CharField(max_length=100)
     startDate = models.DateField(auto_now_add=True)
-    expectedEndData = models.DateField()
+    expectedEndDate = models.DateField()
 
 
 class ResourceManager(BaseUserManager):

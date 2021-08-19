@@ -50,10 +50,11 @@ class SpecificProject(APIView):
     # method to handle the put request to update specific project (Update)
     def put(self, request, pk):
         project = self.get_project(pk)
-        serializer = ProjectsSerializer(project, data=request.data)
+        serializer = ProjectsSerializer(
+            project, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # method to handle the delete request (Delete)
@@ -122,7 +123,7 @@ class CreateRelease(APIView):
         print(request.data)
 
         # modifying the project attribute in the data with the target project
-        request.data["project"] = pk
+        # request.data["project"] = pk
         if Projects.objects.filter(id=pk).exists():
             serializer = ReleaseSerializer(data=request.data, partial=True)
             if serializer.is_valid():
