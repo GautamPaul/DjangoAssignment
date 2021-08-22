@@ -45,7 +45,7 @@ class Resource(AbstractBaseUser):  # Custom user model for resources
     date_joined = models.DateTimeField(
         verbose_name="date joined", auto_now_add=True)
     last_login = models.DateTimeField(verbose_name="last login", auto_now=True)
-
+    # password = models.CharField(max_length=128)
     # all these fields are included in the abstract base user class so these need to be overridden
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

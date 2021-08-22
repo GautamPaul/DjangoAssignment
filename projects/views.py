@@ -18,6 +18,49 @@ def home(request):
     return render(request, 'index.html')
 
 
+class AllResources(APIView):
+    def get(self, request):
+        resources = Resource.objects.all()
+        serializer = ResourceSerializer(resources, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ResourceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class SpecificResource(APIView):
+    def get_resource(self, pk):
+        try:
+            return Resource.objects.get(pk=pk)
+        except:
+            raise Http404
+
+    # method to handle the get request for a specific resource (Request)
+    def get(self, request, pk):
+        resource = self.get_resource(pk)
+        serializer = ResourceSerializer(resource)
+        return Response(serializer.data)
+
+    # method to handle the put request to update specific resource (Update)
+    def put(self, request, pk):
+        resource = self.get_resource(pk)
+        serializer = ResourceSerializer(
+            resource, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # method to handle the delete request (Delete)
+    def delete(self, request, pk):
+        resource = self.get_resource(pk)
+        resource.delete()
+        return Response({'response': 'resource deleted'}, status=status.HTTP_204_NO_CONTENT)
+
+
 class AllProjects(APIView):
     # method to get all the projects available (Request)
     def get(self, request):
