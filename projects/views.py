@@ -19,11 +19,13 @@ def home(request):
 
 
 class AllResources(APIView):
+    # method to get all the Resources
     def get(self, request):
         resources = Resource.objects.all()
         serializer = ResourceSerializer(resources, many=True)
         return Response(serializer.data)
 
+    # method to create a Resource
     def post(self, request):
         serializer = ResourceSerializer(data=request.data)
         if serializer.is_valid():

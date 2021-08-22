@@ -6,6 +6,42 @@ from rest_framework import status
 
 # Create your tests here.
 
+class ResourceTestCase(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.project = Projects.objects.create(
+            id=1, name='common project', expectedEndDate='2021-11-25')
+        self.project.save()
+
+        self.resource = Resource.objects.create(
+            email='testresource@gmail.com', username='testResource', password="admin")
+        self.resource.save()
+
+    def test_createResource(self):
+        beforeCreateCount = Resource.objects.all().count()
+        response = self.client.post(
+            '/resources/', data={"email": "test@gmail.com", "username": "test", "password": "admin"})
+        afterCreateCount = Resource.objects.all().count()
+        self.assertEqual(beforeCreateCount+1, afterCreateCount)
+
+    def test_retrieveResource(self):
+        id = self.resource.id
+        response = self.client.get(f'/resources/{id}/')
+        self.assertEqual(response.data['email'], self.resource.email)
+
+    def test_updateResource(self):
+        id = self.resource.id
+        response = self.client.put(
+            f'/resources/{id}/', data={"username": "test123"})
+        self.assertEqual(response.data['username'], 'test123')
+
+    def test_deleteResource(self):
+        beforeDeleteCount = Resource.objects.all().count()
+        response = self.client.delete(f'/resources/{self.resource.id}/')
+        afterDeleteCount = Resource.objects.all().count()
+        self.assertEqual(beforeDeleteCount-1, afterDeleteCount)
+
+
 class ProjectsTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
