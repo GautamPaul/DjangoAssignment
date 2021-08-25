@@ -112,18 +112,17 @@ class SpecificProject(APIView):
 class AllocateResource(APIView):
     # method to allocate single/multiple resources
     def put(self, request, pk):
-        print(pk)
         # converting json object to python dict and then extracting the resources as a list
         resources = json.loads(request.body)["id"]
-        print(resources)
+
         # checking the existence of project
-        if Projects.objects.filter(id=pk).exists():
-            print("Project exist")
+        project = Projects.objects.get(id=pk)
+        if project.exists():
             # iterating through the resources
             for resource in resources:
                 # checking the existence of user
-                if Resource.objects.filter(id=resource).exists():
-                    print("resource {} exists".format(resource))
+                resource = Resource.objects.filter(id=resource)
+                if resource.exists():
                     # getting the current data of the resource
 
                     resourceData = Resource.objects.get(id=resource)
@@ -132,8 +131,6 @@ class AllocateResource(APIView):
                         resourceData, data={"project": pk}, partial=True)
                     if serializer.is_valid():
                         serializer.save()
-                        print("resource {} allocated to project {}".format(
-                            resource, pk))
                 else:
                     return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
         else:
@@ -147,8 +144,8 @@ class DeallocateResource(APIView):
         resources = json.loads(request.body)["id"]
         print(resources)
         for resource in resources:
-            if Resource.objects.filter(id=resource).exists():
-                print("resource {} exists".format(resource))
+            currentResource = Resource.objects.get(id=resource)
+            if currentResource.exists():
                 # getting the current data of the resource
                 resourceData = Resource.objects.get(id=resource)
 
@@ -157,7 +154,6 @@ class DeallocateResource(APIView):
                     resourceData, data={"project": 1}, partial=True)
                 if serializer.is_valid():
                     serializer.save()
-                    print("resource {} deallocated".format(resource,))
             else:
                 return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
         return Response(status=status.HTTP_200_OK)
@@ -165,11 +161,10 @@ class DeallocateResource(APIView):
 
 class CreateRelease(APIView):
     def post(self, request, pk):
-        print(request.data)
-
         # modifying the project attribute in the data with the target project
         # request.data["project"] = pk
-        if Projects.objects.filter(id=pk).exists():
+        project = Projects.objects.filter(id=pk)
+        if project.exists():
             serializer = ReleaseSerializer(data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()

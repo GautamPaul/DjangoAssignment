@@ -51,11 +51,9 @@ class ProjectsTestCase(APITestCase):
 
     def test_createProject(self):
         beforeCreateCount = Projects.objects.all().count()
-        print(beforeCreateCount)
         response = self.client.post('/projects/', data={"name": "Test Project 1",
                                                         "expectedEndDate": "2022-06-19"})
         afterCreateCount = Projects.objects.all().count()
-        print(afterCreateCount)
         self.assertEqual(beforeCreateCount+1, afterCreateCount)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
